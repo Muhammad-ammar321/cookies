@@ -31,7 +31,7 @@ app.use((req,res,next)=>{
     next()
 })
 const checkAuth = (req,res,next)=>{
- const {sessionId} = req.body
+ const {sessionId} = req.cookies 
  if(!sessionId || !sessions[sessionId] ) return res.status(401).send('Unauthorized');
  next()
 
@@ -41,8 +41,8 @@ const checkAuth = (req,res,next)=>{
 
 
 const users = [
-    { id: 1, username: 'asd', password: '123' },
-    { id: 2, username: 'bob', password: 'abc' }
+    { id: 1, username: 'asd', password: '123' }
+    // { id: 2, username: 'bob', password: 'abc' }
   ];
 
 const sessions ={
@@ -52,7 +52,7 @@ const sessions ={
 
 
 app.get('/login',checkAuth,(req,res)=>{
-    res.send('>>>> protect your data by yourself, we are not your Empoly')
+    res.send('>>>> protect your data by yourself, we are not your employ')
 })
 
 
@@ -60,25 +60,27 @@ app.get('/login',checkAuth,(req,res)=>{
   
 
 app.post('/login',(req,res)=>{
-    const {username,password} = req.body || {};
+    const us = req.body || {};
     console.log(req.body);
-    if(!username || !password ) return  res.status(422).send('requriment  is not fullfill') 
+    if(!us.username || !us.password ) return  res.status(422).send('requriment  is not fullfill') 
     // const user = users.find(u=> u.username == username && u.password == password )
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === us.username && u.password === us.password);
     console.log(user);
-    // // if(users.username !== username || users.password !== password ) return res.status(401).send('requriment  is not fullfill')
-    if(!user) return res.status(401).send('requriment  is incorrect')
-    
-    const sessionId = Math.ceil(Math.random() * 10e10)
+    if(users.username == us.username || users.password == us.password ) return res.status(401).send('requriment  is not fullfill')
+    // if(!user) return res.status(401).send('requriment  is incorrect')
+    console.log(user)
+    const sessionId = Math.ceil(Math.random() * 10000)
     sessions[sessionId] = user.id;
     res.setHeader('Set-Cookie',`sessionId=${sessionId}; HttpOnly; Path=/dasboard; Max-Age=${60*5}`)
     
   
     res.send({
+        message:'login succseful',
         sessionId
+  
     })
   
-    res.send('>>>>')
+    
 })
 
 app.listen(port,(req,res)=>{
